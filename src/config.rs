@@ -3,7 +3,8 @@ use std::fs;
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
-    vault_path: String,
+    pub vault_path: String,
+    pub exercises: Vec<String>
 }
 
 pub fn get_config() -> Config {
