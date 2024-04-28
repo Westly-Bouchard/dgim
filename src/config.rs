@@ -7,12 +7,17 @@ pub struct Config {
 }
 
 pub fn get_config() -> Config {
-    let mut config_path =  dirs::config_dir().expect("Couldn't resolve config path!");
+    let mut config_path = dirs::config_dir().expect("Couldn't resolve config path!");
 
     config_path.push("dgim");
     config_path.push("dgim.toml");
 
-    let config_string = fs::read_to_string(config_path).expect("Error loading config file");
-
-    toml::from_str(&config_string).expect("Error parsing config file!")
+    match fs::read_to_string(&config_path) {
+        Ok(str) => toml::from_str(&str).expect("Error parsing config file!"),
+        Err(error) => {
+            println!("Error opening config file!");
+            println!("Config should be located at: {:?}", config_path);
+            panic!("{:?}", error);
+        }
+    }
 }
