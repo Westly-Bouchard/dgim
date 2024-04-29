@@ -1,6 +1,6 @@
 use clap::{Args, Parser, Subcommand};
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
 pub struct Cli {
     #[arg(short, long)]
@@ -10,15 +10,26 @@ pub struct Cli {
     command: Commands,
 }
 
-#[derive(Subcommand)]
+#[derive(Debug, Subcommand)]
 pub enum Commands {
     /// Log an exercise to dgim's internal database
     Log(LogArgs),
 }
 
-#[derive(Args)]
+#[derive(Args, Debug)]
 pub struct LogArgs {
-    exercise_name: Option<String>,
+    /// Name of the exercise
+    #[arg(short, long)]
+    name: String,
+
+    /// mm/dd/yyyy
+    /// Date the exercise was done
+    /// If not specified, the current date will be used
+    #[arg(short, long)]
     date: Option<String>,
-    num_sets: Option<u8>,
+
+    /// The Set Data: lb,reps
+    sets: Vec<String>,
+
+
 }
