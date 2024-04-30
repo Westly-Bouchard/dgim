@@ -7,7 +7,7 @@ pub struct Cli {
     pub verbose: bool, 
 
     #[command(subcommand)]
-    command: Commands,
+    pub command: Commands,
 }
 
 #[derive(Debug, Subcommand)]
@@ -20,16 +20,16 @@ pub enum Commands {
 pub struct LogArgs {
     /// Name of the exercise
     #[arg(short, long)]
-    name: String,
+    pub name: String,
 
     /// mm/dd/yyyy
     /// Date the exercise was done
     /// If not specified, the current date will be used
     #[arg(short, long)]
-    date: Option<String>,
+    pub date: Option<String>,
 
     /// The Set Data: lb,reps
-    sets: Vec<String>,
+    pub sets: Vec<String>,
 
 
 }
