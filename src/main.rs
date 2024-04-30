@@ -48,9 +48,7 @@ fn main() {
                 .for_each(|(i, set)| {
                     let values: Vec<&str> = set.split(',').collect();
 
-                    let weight = if let Ok(res) = values[0].parse::<f32>() {
-                        res
-                    } else {
+                    let Ok(weight) = values[0].parse::<f32>() else {
                         eprintln!("Could not parse weight {0} from set {1}, aborting", values[0], i);
                         exit(1);
                     };
@@ -58,6 +56,11 @@ fn main() {
                     let reps = if let Ok(res) = values[1].parse::<u8>() {
                         res
                     } else {
+                        eprintln!("Could not parse weight {0} from set {1}, aborting", values[1], i);
+                        exit(1);
+                    };
+
+                    let Ok(reps) = values[1].parse::<u8>() else {
                         eprintln!("Could not parse weight {0} from set {1}, aborting", values[1], i);
                         exit(1);
                     };
