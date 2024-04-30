@@ -14,7 +14,7 @@ fn main() {
 
     let cli = cli::Cli::parse();
 
-    match &cli.command {
+    match cli.command {
         cli::Commands::Log(args) => {
             println!("Found log command");
             
@@ -30,7 +30,7 @@ fn main() {
             // Handle date
             let mut date = Local::now();
 
-            if let Some(custom_date) = &args.date {
+            if let Some(custom_date) = args.date {
                 date = match parse(&custom_date) {
                     Ok(d) => { d.into() }
                     Err(e) => {
@@ -41,9 +41,33 @@ fn main() {
                 } 
             }
 
+            // Parse the sets completed
+            let mut record = database::Record::new(args.name, date);
 
-            println!("Found exercise: {}", args.name);
-            println!("Using date: {}", date);
+            args.sets.into_iter().enumerate()
+                .for_each(|(i, set)| {
+                    let values: Vec<&str> = set.split(',').collect();
+
+                    let weight = if let Ok(res) = values[0].parse::<f32>() {
+                        res
+                    } else {
+                        eprintln!("Could not parse weight {0} from set {1}, aborting", values[0], i);
+                        exit(1);
+                    };
+
+                    let reps = if let Ok(res) = values[1].parse::<u8>() {
+                        res
+                    } else {
+                        eprintln!("Could not parse weight {0} from set {1}, aborting", values[1], i);
+                        exit(1);
+                    };
+
+                    record.add_set(weight, reps);
+                });
+
+            println!("{:?}", record);
+
+            // By now we have a valid record, so we can write it to the database
         }
     }
 

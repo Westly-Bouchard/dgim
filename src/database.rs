@@ -26,7 +26,7 @@ impl Connection {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Record {
     name: String,
     date: DateTime<Local>,
