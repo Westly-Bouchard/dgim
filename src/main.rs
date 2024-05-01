@@ -44,33 +44,31 @@ fn main() {
             // Parse the sets completed
             let mut record = database::Record::new(args.name, date);
 
-            args.sets.into_iter().enumerate()
-                .for_each(|(i, set)| {
-                    let values: Vec<&str> = set.split(',').collect();
+            for (i, set) in args.sets.into_iter().enumerate() {
+                let Some(values) = set.split_once(',') else {
+                    eprintln!("Encountered error while reading set {}, aborting", i + 1);
+                    exit(1);
+                };
 
-                    let Ok(weight) = values[0].parse::<f32>() else {
-                        eprintln!("Could not parse weight {0} from set {1}, aborting", values[0], i);
-                        exit(1);
-                    };
+                let Ok(weight) = values.0.parse::<f32>() else {
+                    eprintln!("Could not parse weight {0} from set {1}, aborting", values.0, i + 1);
+                    exit(1);
+                };
 
-                    let reps = if let Ok(res) = values[1].parse::<u8>() {
-                        res
-                    } else {
-                        eprintln!("Could not parse weight {0} from set {1}, aborting", values[1], i);
-                        exit(1);
-                    };
+                let Ok(reps) = values.1.parse::<u8>() else {
+                    eprintln!("Could not parse weight {0} from set {1}, aborting", values.1, i + 1);
+                    exit(1);
+                };
 
-                    let Ok(reps) = values[1].parse::<u8>() else {
-                        eprintln!("Could not parse weight {0} from set {1}, aborting", values[1], i);
-                        exit(1);
-                    };
-
-                    record.add_set(weight, reps);
-                });
-
-            println!("{:?}", record);
+                record.add_set(weight, reps);
+            }
 
             // By now we have a valid record, so we can write it to the database
+            
+            // Open connection to local database
+            let db = database::Database::open();
+
+            db.write(record);
         }
     }
 

@@ -19,7 +19,6 @@ pub enum Commands {
 #[derive(Args, Debug)]
 pub struct LogArgs {
     /// Name of the exercise
-    #[arg(short, long)]
     pub name: String,
 
     /// mm/dd/yyyy
