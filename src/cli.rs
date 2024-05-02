@@ -14,6 +14,12 @@ pub struct Cli {
 pub enum Commands {
     /// Log an exercise to dgim's internal database
     Log(LogArgs),
+
+    // List past records of an exercise
+    List(ListArgs),
+
+    // Remove a record by its ID
+    Remove(RemoveArgs),
 }
 
 #[derive(Args, Debug)]
@@ -31,4 +37,20 @@ pub struct LogArgs {
     pub sets: Vec<String>,
 
 
+}
+
+#[derive(Args, Debug)]
+pub struct ListArgs {
+    /// Name of exercise to list
+    pub name: String,
+
+    /// Max number of records to display (defualt is 10)
+    #[arg(short, long)]
+    pub num: Option<u8>,
+}
+
+#[derive(Args, Debug)]
+pub struct RemoveArgs {
+    // ID of record to remove
+    pub id: i32,
 }
