@@ -1,5 +1,6 @@
 
 use chrono::prelude::*;
+use dateparser::parse;
 use rusqlite::params;
 use std::process::exit;
 
@@ -65,6 +66,70 @@ impl Database {
             }
         }
     }
+
+    pub fn get_records(&self, name: String, max: u8) -> Vec<Record> {
+        let Ok(mut query) = self.db.prepare("SELECT * FROM exercises WHERE name = ?1 LIMIT ?2;") else {
+            panic!("If this is pacicing something is very wrong");
+        };
+        
+        let Ok(mut rows) = query.query(params![name, max]) else {
+            eprintln!("Enocuntered error while executing query");
+            exit(1);
+        };
+
+        let mut ret: Vec<Record> = Vec::new();
+
+        while let Some(row) = rows.next().expect("I don't even know what this error would be") {
+            let Ok(name) = row.get::<usize, String>(0) else {
+                eprintln!("Problem getting name from row");
+                exit(1);
+            };
+
+            let date_col: String = row.get(1).expect("Problem getting date from row");
+
+            let Ok(date) = parse(&date_col) else {
+                eprintln!("Problem parsing date from row");
+                exit(1);
+            };
+
+            let weights: Vec<f32> = row.get::<usize, String>(3).expect("Problem getting weights string from row")
+                .split(',')
+                .map(|weight| {
+                    println!("{}", weight);
+                    match weight.parse::<f32>() {
+                        Ok(w) => w,
+                        Err(e) => {
+                            eprintln!("Error parsing float from weight string. {:?}", e);
+                            exit(1);
+                        }
+                    }
+                }).collect();
+
+            let reps: Vec<u8> = row.get::<usize, String>(4).expect("Problem getting reps string from row")
+                .split(',')
+                .map(|rep| {
+                    println!("{}", rep);
+                    match rep.parse::<u8>() {
+                        Ok(r) => r,
+                        Err(e) => {
+                            eprintln!("Error parsing int from reps string. {:?}", e);
+                            exit(1);
+                        }
+                    }
+                }).collect();
+
+
+            ret.push(Record {
+                name,
+                date: date.into(),
+                weights,
+                reps
+            });
+        }
+
+        ret
+    }
+
 }
 
 #[derive(Debug, Default)]
@@ -98,8 +163,11 @@ impl Record {
     fn reps_as_blob(&self) -> String {
         let mut ret: String = Default::default();
 
-        for count in self.reps.iter() {
+        for (i, count) in self.reps.iter().enumerate() {
             ret.push_str(&count.to_string());
+            if i != self.reps.len() - 1 {
+                ret.push(',');
+            }            
         }
 
         ret
@@ -108,8 +176,11 @@ impl Record {
     fn weights_as_blob(&self) -> String {
         let mut ret: String = Default::default();
 
-        for count in self.weights.iter() {
+        for (i, count) in self.weights.iter().enumerate() {
             ret.push_str(&count.to_string());
+            if i != self.reps.len() - 1 {
+                ret.push(',');
+            }          
         }
 
         ret

@@ -17,7 +17,7 @@ fn main() {
     match cli.command {
         cli::Commands::Log(args) => log(config, args),
 
-        cli::Commands::List(_args) => todo!(),
+        cli::Commands::List(args) => list(args),
 
         cli::Commands::Remove(_args) => todo!()
     }
@@ -76,4 +76,15 @@ fn log(config: config::Config, args: cli::LogArgs) {
     let db = database::Database::open();
 
     db.write(record);
+}
+
+fn list(args: cli::ListArgs) {
+    // Open database connection
+    let db = database::Database::open();
+
+    let records = db.get_records(args.name, args.num.unwrap_or(10));
+
+    for record in records.iter() {
+        println!("{:?}", record);
+    }
 }
